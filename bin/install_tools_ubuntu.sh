@@ -9,7 +9,12 @@ sudo apt-get install -y \
     iqtree \
     paml \
     python3-biopython \
-    r-base
+    r-base \
+    hyphy-mpi \
+    snp-dists \
+    phipack
+    
+echo "Note: BEAST2 is typically not available in default apt repositories. It is highly recommended to install it via Conda (bin/setup_conda.sh) or manually."
 
 echo "✓ Installation complete"
 ./bin/check_deps.sh
