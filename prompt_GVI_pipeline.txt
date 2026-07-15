@@ -1,0 +1,898 @@
+# Build GVI-NF: Universal Interactive Nextflow DSL2 Pipeline for Viral Evolution, Phylodynamics, and Genomic Vulnerability Index (GVI)
+
+## Mission
+
+Build a production-grade, modular, extensible, virus-agnostic Nextflow DSL2 pipeline called:
+
+**GVI-NF (Genomic Vulnerability Index – Nextflow)**
+
+The pipeline must estimate viral evolutionary risk and outbreak potential from genomic sequences by integrating:
+
+* Codon Adaptation Index (CAI)
+* Selection Pressure (dN/dS)
+* Effective Reproductive Number (Re)
+* Evolutionary Rate
+* Nucleotide Diversity (π)
+* Genetic Distance (GD)
+* Mutation Burden (MB)
+* GC Content
+* Recombination
+* Segment-specific analysis
+* Serotype-aware analysis
+* Final Genomic Vulnerability Index (GVI)
+
+The system must work across:
+
+* RNA viruses
+* DNA viruses
+* Segmented viruses
+* Non-segmented viruses
+* Whole genomes
+* Single genes
+* Coding sequences
+* Partial genomes
+* Multi-host pathogens
+
+Examples:
+
+* Avian Influenza Virus
+* Bluetongue Virus (BTV)
+* PPRV
+* FMDV
+* ASFV
+* SARS-CoV-2
+* Dengue Virus
+* HIV
+* Rotavirus
+* Nipah Virus
+* Rabies Virus
+* Newcastle Disease Virus
+
+---
+
+# Core Design Principles
+
+The pipeline must be:
+
+1. Virus-agnostic
+2. Host-aware
+3. Serotype-aware
+4. Segment-aware
+5. Metadata-aware
+6. Interactive
+7. Modular
+8. Reproducible
+9. HPC-ready
+10. Cloud-ready
+11. Publication-grade
+12. Suitable for research, surveillance, and industry deployment
+
+---
+
+# Execution Philosophy
+
+The pipeline must run WITHOUT requiring Docker.
+
+Default profile:
+
+```bash
+nextflow run main.nf -profile conda
+```
+
+Supported execution profiles:
+
+```bash
+-profile conda
+-profile mamba
+-profile docker
+-profile singularity
+-profile slurm
+-profile aws
+-profile azure
+-profile gcp
+```
+
+Docker must remain optional.
+
+The pipeline must run on:
+
+* Linux
+* Windows WSL
+* macOS
+* HPC clusters
+* Cloud systems
+
+---
+
+# Interactive Command-Line Wizard
+
+Running:
+
+```bash
+nextflow run main.nf
+```
+
+or
+
+```bash
+gvi run
+```
+
+must launch an interactive workflow.
+
+Example:
+
+======================================================
+GVI-NF : Genomic Vulnerability Index Pipeline
+=============================================
+
+Select Genome Type
+
+1. RNA Virus
+2. DNA Virus
+
+>
+
+If RNA:
+
+Is the virus segmented?
+
+1. Yes
+2. No
+
+>
+
+Host Species
+
+1. Human
+2. Chicken
+3. Duck
+4. Turkey
+5. Pig
+6. Cattle
+7. Sheep
+8. Goat
+9. Custom
+
+>
+
+Virus Name
+
+>
+
+Known Serotype?
+
+1. Yes
+2. No
+
+>
+
+Run Recombination Analysis?
+
+[Y/N]
+
+>
+
+Run Evolutionary Rate Analysis?
+
+[Y/N]
+
+>
+
+Run Re Estimation?
+
+[Y/N]
+
+>
+
+Output Format
+
+1. HTML
+2. PDF
+3. JSON
+4. All
+
+>
+
+Launch Analysis?
+
+[Y/N]
+
+---
+
+# Automatic Hardware Detection
+
+At startup:
+
+```text
+Detected CPUs : 64
+Detected RAM  : 256 GB
+```
+
+Prompt:
+
+```text
+Threads to use?
+[Default 48]
+
+>
+```
+
+Prompt:
+
+```text
+Memory to allocate?
+[Default 200 GB]
+
+>
+```
+
+---
+
+# Global Resource Management
+
+Universal parameters:
+
+```bash
+--threads
+--memory
+--time
+```
+
+Example:
+
+```bash
+nextflow run main.nf \
+  --threads 48 \
+  --memory 256.GB \
+  --time 72.h
+```
+
+Automatically propagate resources.
+
+Examples:
+
+MAFFT
+
+```bash
+mafft --thread ${threads}
+```
+
+IQ-TREE
+
+```bash
+iqtree -nt ${threads}
+```
+
+BEAST2
+
+```bash
+beast -threads ${threads}
+```
+
+---
+
+# Input Modes
+
+Support:
+
+## Mode 1
+
+Aligned FASTA
+
+```text
+aligned.fasta
+```
+
+## Mode 2
+
+Unaligned FASTA
+
+Pipeline performs alignment.
+
+## Mode 3
+
+Segmented Virus Input
+
+```text
+segment1.fasta
+segment2.fasta
+segment3.fasta
+```
+
+## Mode 4
+
+Whole Genome
+
+## Mode 5
+
+Metadata File
+
+CSV:
+
+```csv
+accession,date,host,country,serotype
+```
+
+---
+
+# Workflow Auto-Classification Engine
+
+Automatically determine:
+
+* RNA/DNA
+* Segmented/non-segmented
+* CDS/whole genome
+* Serotypes
+* Hosts
+* Temporal information
+* Metadata completeness
+
+Build workflow dynamically.
+
+---
+
+# Module 1: Data Validation
+
+Validate:
+
+* FASTA format
+* Duplicate IDs
+* Invalid characters
+* Missing metadata
+* Ambiguous bases
+* Sequence length
+
+Tools:
+
+* SeqKit
+* Biopython
+
+Outputs:
+
+```json
+qc_report.json
+```
+
+---
+
+# Module 2: ORF and CDS Detection
+
+Automatically identify coding regions.
+
+Tools:
+
+* EMBOSS getorf
+* Prodigal
+* GeneMarkS
+
+Detect:
+
+* CDS coordinates
+* Start codons
+* Stop codons
+* UTRs
+
+Generate:
+
+```json
+orf_coordinates.json
+```
+
+Automatically create CDS-only datasets for codon analyses.
+
+---
+
+# Module 3: Alignment
+
+Protein Alignment:
+
+MAFFT
+
+Codon Alignment:
+
+MACSE
+
+Fallback:
+
+TranslatorX
+
+Outputs:
+
+```text
+protein_alignment.faa
+codon_alignment.fasta
+```
+
+---
+
+# Module 4: Phylogenetic Reconstruction
+
+Tool:
+
+IQ-TREE2
+
+Perform:
+
+* ModelFinder
+* Maximum Likelihood Tree
+* Bootstrap Analysis
+
+Outputs:
+
+```text
+treefile
+iqtree report
+```
+
+---
+
+# Module 5: Nucleotide Diversity
+
+Calculate:
+
+Tajima's π
+
+Formula:
+
+π = Σdij / [n(n−1)/2]
+
+Outputs:
+
+```json
+nucleotide_diversity.json
+```
+
+---
+
+# Module 6: Genetic Distance
+
+Models:
+
+* JC69
+* K2P
+* TN93
+
+Outputs:
+
+```json
+genetic_distance.json
+```
+
+---
+
+# Module 7: Selection Pressure
+
+DO NOT use Jukes-Cantor dN/dS.
+
+Use HyPhy.
+
+Modes:
+
+### Fast
+
+SLAC
+
+### Standard
+
+FEL
+
+### Advanced
+
+BUSTED
+
+Outputs:
+
+* global omega
+* positive selection sites
+* negative selection sites
+* p-values
+
+Output:
+
+```json
+selection_results.json
+```
+
+---
+
+# Module 8: Codon Adaptation Index
+
+Host-aware CAI.
+
+Supported hosts:
+
+* Human
+* Chicken
+* Duck
+* Turkey
+* Pig
+* Cattle
+* Sheep
+* Goat
+
+Allow custom codon usage tables.
+
+Formula:
+
+CAI = exp[(1/L) Σ ln(wi)]
+
+Outputs:
+
+```json
+cai_results.json
+```
+
+---
+
+# Module 9: Mutation Burden
+
+Reference options:
+
+1. Oldest isolate
+2. Consensus sequence
+3. Phylogenetic root
+
+Compute:
+
+Mutations per kilobase.
+
+Outputs:
+
+```json
+mutation_burden.json
+```
+
+---
+
+# Module 10: GC Content
+
+Formula:
+
+GC% = (G+C)/(A+T+G+C)
+
+Compute:
+
+* GC%
+* GC deviation
+
+Outputs:
+
+```json
+gc_results.json
+```
+
+---
+
+# Module 11: Recombination Analysis
+
+Tools:
+
+* PhiPack
+* GARD
+
+Optional:
+
+* RDP-compatible exports
+
+Outputs:
+
+```json
+recombination.json
+```
+
+Metrics:
+
+* PHI p-value
+* Breakpoints
+* Recombination Score
+
+---
+
+# Module 12: Temporal Signal Validation
+
+Before BEAST analyses:
+
+Run TempEst.
+
+Calculate:
+
+* Root-to-tip correlation
+* R²
+* Slope
+
+Decision Rules:
+
+R² < 0.10
+
+→ Warning
+
+R² < 0.05
+
+→ Unreliable temporal signal
+
+Outputs:
+
+```json
+temporal_signal.json
+```
+
+---
+
+# Module 13: Evolutionary Rate Estimation
+
+Primary Engine:
+
+BEAST2
+
+LSD2 allowed only as optional exploratory analysis.
+
+Workflow:
+
+Alignment
+→ IQ-TREE
+→ TempEst
+→ BEAST XML
+→ MCMC
+→ Tracer Validation
+→ Evolutionary Rate
+
+Supported Clock Models:
+
+* Strict Clock
+* Relaxed Lognormal Clock
+* Relaxed Exponential Clock
+
+Tree Priors:
+
+* Constant Population
+* Exponential Population
+* Bayesian Skyline
+
+Automatic Model Selection:
+
+* Marginal Likelihood
+* AICM
+* Bayes Factor
+
+Outputs:
+
+```json
+{
+  "evolutionary_rate": 3.99e-4,
+  "HPD95_lower": 2.8e-4,
+  "HPD95_upper": 5.1e-4,
+  "ESS": 450
+}
+```
+
+---
+
+# Module 14: Effective Reproductive Number (Re)
+
+Primary Engine:
+
+BEAST2 Birth-Death Skyline (BDSKY)
+
+Workflow:
+
+Alignment
+→ Tree
+→ Date Validation
+→ BDSKY XML
+→ MCMC
+→ Tracer
+→ Re Estimation
+
+Outputs:
+
+```json
+{
+  "Re": 1.34,
+  "HPD95_lower": 1.02,
+  "HPD95_upper": 1.71,
+  "ESS": 300
+}
+```
+
+---
+
+# ESS Validation
+
+Automatically validate:
+
+```text
+ESS > 200 = acceptable
+ESS > 300 = good
+ESS > 500 = excellent
+```
+
+If ESS < 200:
+
+Automatically increase chain length and rerun.
+
+Chain escalation:
+
+```text
+10 million
+50 million
+100 million
+```
+
+User option:
+
+```bash
+--auto_ess true
+```
+
+---
+
+# Module 15: Segmented Virus Analysis
+
+Examples:
+
+* Influenza
+* Bluetongue Virus
+* Rotavirus
+
+Analyze each segment independently.
+
+Generate:
+
+```json
+segment_scores.json
+```
+
+Then calculate weighted final GVI.
+
+Allow user-defined weights.
+
+---
+
+# Module 16: Serotype-Aware Analysis
+
+Detect or use metadata.
+
+Analyze serotypes independently.
+
+Prevent inflated:
+
+* π
+* GD
+* dN/dS
+
+Generate:
+
+```json
+serotype_results.json
+```
+
+---
+
+# Module 17: GVI Scoring Engine
+
+Inputs:
+
+* CAI
+* dN/dS
+* Re
+* Evolutionary Rate
+* π
+* Genetic Distance
+* Mutation Burden
+* GC Deviation
+* Recombination
+
+Implement:
+
+* Normalization
+* Weighted scoring
+* Percentile ranking
+
+Outputs:
+
+```json
+{
+  "GVI": 73.6,
+  "Risk": "High"
+}
+```
+
+Risk Categories:
+
+* Very Low
+* Low
+* Moderate
+* High
+* Critical
+
+---
+
+# Reporting System
+
+Generate:
+
+## HTML Dashboard
+
+Include:
+
+* Interactive phylogeny
+* Diversity plots
+* Re estimates
+* Evolutionary rate
+* GVI gauge
+* Segment comparison
+* Serotype comparison
+
+Libraries:
+
+* Plotly
+* Dash
+* ECharts
+
+## PDF Report
+
+Publication-ready.
+
+## JSON Export
+
+Machine-readable.
+
+---
+
+# Reproducibility Outputs
+
+Generate automatically:
+
+```text
+software_versions.txt
+run_parameters.json
+nextflow_report.html
+timeline.html
+trace.txt
+dag.png
+```
+
+---
+
+# Repository Structure
+
+```text
+gvi-nf/
+├── main.nf
+├── nextflow.config
+├── modules/
+├── subworkflows/
+├── assets/
+├── containers/
+├── envs/
+├── bin/
+├── reports/
+├── docs/
+├── tests/
+├── examples/
+└── schemas/
+```
+
+---
+
+# Engineering Requirements
+
+Implement:
+
+* Nextflow DSL2
+* GitHub Actions CI/CD
+* Unit tests
+* Integration tests
+* Conda environments
+* Optional Docker/Singularity
+* Release automation
+* Zenodo DOI support
+* Semantic versioning
+* Extensive documentation
+
+---
+
+# Final Goal
+
+Develop the first universal, host-aware, serotype-aware, segmented-virus-aware, BEAST2-driven viral genomics pipeline capable of generating a robust Genomic Vulnerability Index (GVI) from sequence data alone, while supporting any viral pathogen and any computational environment through an interactive command-line interface and reproducible Nextflow workflow.

@@ -1,0 +1,12 @@
+# Nextflow
+work/
+.nextflow/
+.nextflow.log*
+results/
+
+# Conda/Environments
+envs/
+Miniconda3-latest-Linux-x86_64.sh
+
+# OS
+.DS_Store

@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "GVI-NF pipeline parameters",
+  "description": "Genomic Vulnerability Index Pipeline",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "string",
+      "description": "Path to input FASTA file"
+    },
+    "genome_type": {
+      "type": "string",
+      "enum": ["RNA", "DNA"],
+      "default": "RNA"
+    },
+    "is_segmented": {
+      "type": "boolean",
+      "default": false
+    },
+    "host_species": {
+      "type": "string",
+      "default": "Chicken"
+    },
+    "serotype": {
+      "type": "string",
+      "default": "Unknown"
+    },
+    "selection_mode": {
+      "type": "string",
+      "enum": ["SLAC", "FEL", "BUSTED"],
+      "default": "FEL"
+    },
+    "run_recomb": {
+      "type": "boolean",
+      "default": false
+    },
+    "run_evo_rate": {
+      "type": "boolean",
+      "default": false
+    },
+    "run_re": {
+      "type": "boolean",
+      "default": false
+    },
+    "output_format": {
+      "type": "string",
+      "enum": ["HTML", "PDF", "JSON", "All"],
+      "default": "All"
+    },
+    "threads": {
+      "type": "integer",
+      "default": 48
+    },
+    "memory": {
+      "type": "string",
+      "default": "200.GB"
+    }
+  },
+  "required": ["input"]
+}
