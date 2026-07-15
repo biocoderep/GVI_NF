@@ -12,6 +12,7 @@ process PHYLOGENY {
     script:
     """
     echo "Running IQ-TREE..."
-    iqtree2 -s ${aligned_fasta} -T ${task.cpus} -B 1000 -m TEST
+    IQTREE_CMD=\$(command -v iqtree2 || command -v iqtree || echo "iqtree2")
+    \${IQTREE_CMD} -s ${aligned_fasta} -T ${task.cpus} -B 1000 -m TEST
     """
 }

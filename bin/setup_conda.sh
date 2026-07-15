@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Optional: Create lightweight Conda env without locking to Docker
 
 ENV_NAME="gvi-env"
@@ -10,7 +11,7 @@ else
     echo "Creating lightweight Conda environment..."
     conda create -y -n $ENV_NAME \
         -c bioconda -c conda-forge \
-        seqkit mafft iqtree2 paml r-base biopython beast2 hyphy phipack snp-dists
+        seqkit mafft iqtree paml r-base biopython beast2 hyphy phipack snp-dists
     
     echo "✓ Environment created"
     echo "Activate: conda activate $ENV_NAME"
